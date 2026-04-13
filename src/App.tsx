@@ -1,16 +1,40 @@
+import { useEffect, useMemo } from 'react';
 import BudgetForm from './components/BudgetForm';
-
+import BudgetTracker from './components/BudgetTracker';
+import ExpenseList from './components/ExpenseList';
+import ExpenseModal from './components/ExpenseModal';
+import FilterByCategory from './components/FilterByCategory';
+import { useBudget } from './hooks/useBudget';
 function App() {
+  // const context = useContext(BudgetContext)
+  const { state } = useBudget(); //lo pongo para no tener que usar el useContext en cada componente, lo uso en el App y luego paso el state a los componentes que lo necesiten
+
+  const isValidBudget = useMemo(() => state.budget > 0, [state]);
+
+  useEffect(() => {
+    localStorage.setItem('budget', JSON.stringify(state.budget));
+    localStorage.setItem('expenses', JSON.stringify(state.expenses));
+  }, [state]);
+
   return (
     <>
       <header className="bg-blue-600 py-8 max-h-72">
         <h1 className="uppercase text-center font-black text-4xl text-white">
-          Control de Gastos
+          Planificador de Gastos
         </h1>
       </header>
-      <div className="max-w-3xl mx-auto bg-white shadow-lg rounded-lg mt-10 p-10">
-        <BudgetForm></BudgetForm>
-      </div>
+
+      <section className="max-w-3xl bg-yellow-400 shadow-lg rounded-lg mt-10 p-10 mx-auto">
+        {isValidBudget ? <BudgetTracker /> : <BudgetForm />}
+      </section>
+
+      {isValidBudget && (
+        <main className="max-w-3xl mx-auto py-10">
+          <FilterByCategory />
+          <ExpenseModal />
+          <ExpenseList />
+        </main>
+      )}
     </>
   );
 }

@@ -1,39 +1,55 @@
-import type { ChangeEvent } from 'react';
+import type { ChangeEvent, FormEvent } from 'react';
 import { useMemo, useState } from 'react';
-export default function BudgetForm() {
-  const [budget, setBudget] = useState(0);
+import { useBudget } from '../hooks/useBudget';
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setBudget(e.target.valueAsNumber);
+function BudgetForm() {
+  const [budget, setBudget] = useState(0);
+  const { dispatch } = useBudget();
+
+  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
+    //esto permite que el input sea controlado, es decir, que el valor del input se maneje desde el estado de React, y cada vez que se escribe en el input se actualiza el estado con el nuevo valor, y ese valor es el que se muestra en el input, entonces siempre el valor del input es el mismo que el valor del estado.
+    setBudget(+event.target.value);
   };
+
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    dispatch({ type: 'add-budget', payload: { budget } });
+  };
+
   const isValid = useMemo(() => {
     return isNaN(budget) || budget <= 0;
   }, [budget]);
 
   return (
-    <form className="space-y-5">
+    <form
+      className='space-y-5 block bg-[#ff0000]'
+      onSubmit={handleSubmit}>
       <div className="flex flex-col space-y-5">
         <label
           htmlFor="budget"
-          className="text 4xl text-blue-600 font-bold text-center">
-          Definir presupuesto
+          className="text-4xl text-blue-600 font-bold text-center">
+          Definir Presupuesto
         </label>
+
         <input
-          type="number"
           id="budget"
-          className="w-full bg-white border border-gray-200 p-2"
-          placeholder="Ingresa tu presupuesto"
           name="budget"
+          type="number"
+          className='w-full bg-black border border-gray-200 p-2'
+          placeholder="Define tu presupuesto"
           value={budget}
           onChange={handleChange}
         />
       </div>
       <input
         type="submit"
-        value="Definir presupuesto"
-        className="bg-blue-600 hover:bg-blue-700 cursor-pointer w-full p-2 text-white font-black uppercase disabled:opacity-40"
-        disabled={!isValid}
+        value="Definir Presupuesto"
+        className="bg-blue-600 hover:bg-blue-700 p-2 w-full text-white uppercase font-black 
+                 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+        disabled={isValid}
       />
     </form>
   );
 }
+
+export default BudgetForm;
